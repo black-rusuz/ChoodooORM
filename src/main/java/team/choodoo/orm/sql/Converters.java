@@ -14,7 +14,7 @@ import static team.choodoo.orm.sql.CommonSql.*;
 // TODO: relative mapping NF3
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class Converters {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     // * WRITE
 
