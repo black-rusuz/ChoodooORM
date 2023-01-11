@@ -18,16 +18,16 @@ public class DataProviderJdbc implements IDataProvider {
 
     // * ID
 
-    protected <T> boolean hasSavedId(Class<T> type, long id) {
+    private <T> boolean hasSavedId(Class<T> type, long id) {
         T oldBean = getById(type, id);
-        return ReflectUtil.getId(oldBean) != 0;
+        return oldBean != null;
     }
 
-    protected <T> String getNotFoundMessage(Class<T> type, long id) {
+    private <T> String getNotFoundMessage(Class<T> type, long id) {
         return String.format(Constants.NOT_FOUND, type.getSimpleName(), id);
     }
 
-    protected <T> long getNewId(Class<T> type) {
+    private <T> long getNewId(Class<T> type) {
         return dbHelper.getMaxId(type) + 1;
     }
 
@@ -41,7 +41,7 @@ public class DataProviderJdbc implements IDataProvider {
     @Override
     public <T> T getById(Class<T> type, long id) {
         List<T> list = dbHelper.read(type, id);
-        return list.isEmpty() ? ReflectUtil.getEmptyObject(type) : list.get(0);
+        return list.isEmpty() ? null : list.get(0);
     }
 
     @Override
