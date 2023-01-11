@@ -1,35 +1,36 @@
 package team.choodoo.orm.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 // TODO: Encapsulation
 @SuppressWarnings("Unchecked")
 public class JdbcUtil {
+    private static final Logger log = LogManager.getLogger(JdbcUtil.class);
 
     // COMMON
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String tablePrefix = "T_";
-    private static final String columnPrefix = "C_";
+    private static final String TABLE_PREFIX = "T_";
+    private static final String COLUMN_PREFIX = "C_";
 
     private static <T> LinkedHashMap<String, Object> getMap(T bean) {
         return objectMapper.convertValue(bean, LinkedHashMap.class);
     }
 
     public static <T> String getTableName(Class<T> type) {
-        return tablePrefix + type.getSimpleName();
+        return TABLE_PREFIX + type.getSimpleName();
     }
 
     public static String getColumnName(String key) {
-        return columnPrefix + key;
+        return COLUMN_PREFIX + key;
     }
 
     // CREATE TABLES
@@ -150,22 +151,23 @@ public class JdbcUtil {
     // READ
 
     public static <T> List<T> readData(Class<T> type, ResultSet rs) throws SQLException {
-        List list = new ArrayList<>();
-        if (type == Object.class) list = readOrder(rs);
-        return list;
-    }
-
-    private static List<Object> readOrder(ResultSet rs) throws SQLException {
-        List<Object> list = new ArrayList<>();
+        List<T> list = new ArrayList<>();
         while (rs.next()) {
-            Object bean = new Object();
-//            bean.setId(rs.getLong(1));
-//            bean.setUser(UserConverter.fromString(rs.getString(2)));
-//            bean.setParts(PartsConverter.fromString(rs.getString(3)));
-//            bean.setPrice(rs.getLong(4));
-            list.add(bean);
+            list.add(readObject(type, rs));
         }
         return list;
     }
 
+    // TODO: refactor
+    static <T> T readObject(Class<T> type, ResultSet rs) throws SQLException {
+        ResultSetMetaData md = rs.getMetaData();
+        int columnCount = md.getColumnCount();
+        Map<String, Object> fieldsMap = new HashMap();
+
+        for (int i = 1; i <= columnCount; i++) {
+            fieldsMap.put(md.getColumnName(i).replace(COLUMN_PREFIX, "").toLowerCase(), rs.getObject(i));
+        }
+
+        return objectMapper.convertValue(fieldsMap, type);
+    }
 }
