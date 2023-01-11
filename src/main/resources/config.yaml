@@ -1,0 +1,5 @@
+app_name: ChoodooORM
+database:
+  hostname: jdbc:h2:tcp://localhost/~/test
+  username: sa
+  password:
