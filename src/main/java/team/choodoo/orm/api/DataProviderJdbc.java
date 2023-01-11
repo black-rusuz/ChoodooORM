@@ -2,9 +2,12 @@ package team.choodoo.orm.api;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import team.choodoo.orm.sql.Action;
+import team.choodoo.orm.sql.Converters;
+import team.choodoo.orm.sql.DdlUtil;
+import team.choodoo.orm.sql.DmlUtil;
 import team.choodoo.orm.utils.ConfigurationUtil;
 import team.choodoo.orm.utils.Constants;
-import team.choodoo.orm.utils.JdbcUtil;
 import team.choodoo.orm.utils.ReflectUtil;
 
 import java.io.IOException;
@@ -21,7 +24,7 @@ public class DataProviderJdbc implements IDataProvider {
     private String username;
     private String password;
 
-    public DataProviderJdbc(Object ...beans) {
+    public DataProviderJdbc(Object... beans) {
         try {
             Map<String, String> database = (Map<String, String>) ConfigurationUtil.getValue(Constants.DATABASE);
             hostname = database.get(Constants.HOSTNAME);
@@ -33,7 +36,7 @@ public class DataProviderJdbc implements IDataProvider {
 
         Arrays.stream(beans).forEach((e) -> {
             try {
-                write(JdbcUtil.createTable(e));
+                write(DdlUtil.createTable(e));
             } catch (SQLException ex) {
                 log.error(ex.getMessage());
             }
@@ -43,11 +46,11 @@ public class DataProviderJdbc implements IDataProvider {
     // READ
 
     private <T> List<T> read(Class<T> type) {
-        return read(type, JdbcUtil.selectAllFromTable(type));
+        return read(type, DmlUtil.selectAllFromTable(type));
     }
 
     private <T> List<T> read(Class<T> type, long id) {
-        return read(type, JdbcUtil.selectFromTableById(type, id));
+        return read(type, DmlUtil.selectFromTableById(type, id));
     }
 
     private <T> List<T> read(Class<T> type, String sql) {
@@ -58,7 +61,7 @@ public class DataProviderJdbc implements IDataProvider {
             ResultSet resultSet = statement.executeQuery(sql);
 
             log.debug(sql);
-            list = JdbcUtil.readData(type, resultSet);
+            list = Converters.readData(type, resultSet);
 
             resultSet.close();
             statement.close();
@@ -82,13 +85,12 @@ public class DataProviderJdbc implements IDataProvider {
         statement.close();
     }
 
-    private <T> boolean write(String methodName, T bean) {
+    private <T> boolean write(Action action, T bean) {
         long id = ReflectUtil.getId(bean);
-        String sql = switch (methodName) {
-            case Constants.METHOD_NAME_APPEND -> JdbcUtil.insertIntoTableValues(bean);
-            case Constants.METHOD_NAME_DELETE -> JdbcUtil.deleteFromTableById(bean, id);
-            case Constants.METHOD_NAME_UPDATE -> JdbcUtil.updateTableSetById(bean, id);
-            default -> "";
+        String sql = switch (action) {
+            case INSERT -> DmlUtil.insertIntoTableValues(bean);
+            case DELETE -> DmlUtil.deleteFromTableById(bean, id);
+            case UPDATE -> DmlUtil.updateTableSetById(bean, id);
         };
 
         try {
@@ -119,7 +121,7 @@ public class DataProviderJdbc implements IDataProvider {
 //        if (hasSavedId(type, id)) {
 //            ReflectUtil.setId(bean, System.currentTimeMillis());
 //        }
-        write(Constants.METHOD_NAME_APPEND, bean);
+        write(Action.INSERT, bean);
         return ReflectUtil.getId(bean);
     }
 
@@ -129,7 +131,7 @@ public class DataProviderJdbc implements IDataProvider {
 //            log.warn(getNotFoundMessage(type, id));
 //            return false;
 //        }
-        return write(Constants.METHOD_NAME_DELETE, ReflectUtil.getEmptyObject(type));
+        return write(Action.DELETE, ReflectUtil.getEmptyObject(type));
     }
 
     @Override
@@ -139,6 +141,6 @@ public class DataProviderJdbc implements IDataProvider {
 //            log.warn(getNotFoundMessage(type, id));
 //            return false;
 //        }
-        return write(Constants.METHOD_NAME_UPDATE, bean);
+        return write(Action.UPDATE, bean);
     }
 }
