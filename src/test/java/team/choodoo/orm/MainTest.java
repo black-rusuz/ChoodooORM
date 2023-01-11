@@ -8,6 +8,8 @@ import team.choodoo.orm.api.IDataProvider;
 import team.choodoo.orm.model.TestBean;
 import team.choodoo.orm.model.TestData;
 
+import java.util.stream.Collectors;
+
 public class MainTest extends TestData {
     private final Logger log = LogManager.getLogger(this.getClass());
 
@@ -29,6 +31,6 @@ public class MainTest extends TestData {
         log.info(dp.getById(TestBean.class, t5.getId()));
         log.info(dp.getById(TestBean.class, t6.getId()));
 
-        log.info(dp.getAll(TestBean.class));
+        log.info(dp.getAll(TestBean.class).stream().map(Object::toString).collect(Collectors.joining("\n")));
     }
 }

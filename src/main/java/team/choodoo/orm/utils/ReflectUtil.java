@@ -5,6 +5,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ReflectUtil {
+    private static final String GET_ID = "getId";
+    private static final String SET_ID = "setId";
+
     private static <T> Constructor<T> getConstructor(Class<T> type) {
         try {
             return type.getConstructor();
@@ -24,7 +27,7 @@ public class ReflectUtil {
 
     private static <T> Method getIdMethod(Class<T> type) {
         try {
-            return type.getMethod(Constants.GET_ID);
+            return type.getMethod(GET_ID);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
@@ -41,7 +44,7 @@ public class ReflectUtil {
 
     private static <T> Method setIdMethod(Class<T> type) {
         try {
-            return type.getMethod(Constants.SET_ID, Long.TYPE);
+            return type.getMethod(SET_ID, Long.TYPE);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }

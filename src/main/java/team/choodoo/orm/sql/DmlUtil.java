@@ -13,6 +13,8 @@ public class DmlUtil {
     private static final String DELETE_FROM_TABLE_BY_ID = "DELETE FROM %s WHERE " + getIdColumnName() + " = %d;";
     private static final String UPDATE_TABLE_SET_BY_ID = "UPDATE %s SET %s WHERE " + getIdColumnName() + " = %d;";
 
+    private static final String SELECT_MAX_ID_FROM_TABLE = "SELECT MAX(" + getIdColumnName() + ") from %s";
+
     public static <T> String selectAllFromTable(Class<T> type) {
         String tableName = getTableName(type);
         return String.format(SELECT_ALL_FROM_TABLE, tableName);
@@ -38,5 +40,10 @@ public class DmlUtil {
         String tableName = getTableName(bean.getClass());
         LinkedHashMap<String, Object> map = getMap(bean);
         return String.format(UPDATE_TABLE_SET_BY_ID, tableName, mapToKeyValues(map), id);
+    }
+
+    public static <T> String selectMaxIdFromTable(Class<T> type) {
+        String tableName = getTableName(type);
+        return String.format(SELECT_MAX_ID_FROM_TABLE, tableName);
     }
 }
