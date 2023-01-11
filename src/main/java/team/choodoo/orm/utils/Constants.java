@@ -16,6 +16,7 @@ public class Constants {
     public static final String BEANS_DELIMITER = "--";
 
     // CRUD
+    // TODO: ENUM
     public static final String METHOD_NAME_APPEND = "Append";
     public static final String METHOD_NAME_DELETE = "Delete";
     public static final String METHOD_NAME_UPDATE = "Update";

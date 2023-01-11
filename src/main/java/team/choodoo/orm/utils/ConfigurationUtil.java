@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigurationUtil {
+    // TODO: Constant, name
     private static final String DEFAULT_CONFIG_PATH = "./src/main/resources/config.yaml";
     private static Map<String, Object> map = new HashMap<>();
     private static final Logger log = LogManager.getLogger(ConfigurationUtil.class);
