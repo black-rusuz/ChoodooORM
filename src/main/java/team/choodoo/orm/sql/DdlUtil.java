@@ -30,6 +30,7 @@ public class DdlUtil {
 
     private static String mapper(Map.Entry<String, Object> entry) {
         String key = entry.getKey();
+
         if (key.equals(ID))
             return getColumnName(key) + COLUMN_TYPE_LONG + COLUMN_PRIMARY_KEY;
 

@@ -48,13 +48,13 @@ public class DataProviderJdbc implements IDataProvider {
     public <T> long insert(Class<T> type, T bean) {
         long id = ReflectUtil.getId(bean);
         if (hasSavedId(type, id)) {
-            ReflectUtil.setId(bean, getNewId(type));
+            long newId = getNewId(type);
+            ReflectUtil.setId(bean, newId);
         }
         dbHelper.write(Action.INSERT, bean);
         return ReflectUtil.getId(bean);
     }
 
-    // TODO: check
     @Override
     public <T> boolean delete(Class<T> type, long id) {
         if (!hasSavedId(type, id)) {
