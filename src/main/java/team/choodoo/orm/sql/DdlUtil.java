@@ -8,18 +8,37 @@ import static team.choodoo.orm.sql.CommonSql.*;
 import static team.choodoo.orm.sql.Converters.getMap;
 
 public class DdlUtil {
+
+    enum Type {
+        LONG,
+        INTEGER,
+        DOUBLE,
+        BOOLEAN,
+        STRING,
+        UNDEFINED;
+
+        public static <T> Type getInstance(Class<T> type) {
+            try {
+                return Type.valueOf(type.getSimpleName().toUpperCase());
+            } catch (Exception e) {
+                return Type.UNDEFINED;
+            }
+        }
+    }
+
     private static final String SQL_CREATE_TABLE_IF_NOT_EXISTS = "CREATE TABLE IF NOT EXISTS %s (%s);";
 
     private static final String COLUMN_PRIMARY_KEY = " PRIMARY KEY";
     private static final String COLUMN_TYPE_LONG = " LONG";
-    private static final String COLUMN_TYPE_STRING = " VARCHAR";
-    private static final String COLUMN_TYPE_INT = " INTEGER";
+    private static final String COLUMN_TYPE_INTEGER = " INTEGER";
     private static final String COLUMN_TYPE_DOUBLE = " DOUBLE";
     private static final String COLUMN_TYPE_BOOLEAN = " BIT";
+    private static final String COLUMN_TYPE_STRING = " VARCHAR";
 
     public static <T> String createTable(T bean) {
-        LinkedHashMap<String, Object> map = getMap(bean);
-        return String.format(SQL_CREATE_TABLE_IF_NOT_EXISTS, getTableName(bean.getClass()), mapToColumns(map));
+        String tableName = getTableName(bean.getClass());
+        String columns = mapToColumns(getMap(bean));
+        return String.format(SQL_CREATE_TABLE_IF_NOT_EXISTS, tableName, columns);
     }
 
     private static String mapToColumns(LinkedHashMap<String, Object> map) {
@@ -30,20 +49,17 @@ public class DdlUtil {
 
     private static String mapper(Map.Entry<String, Object> entry) {
         String key = entry.getKey();
-
-        if (key.equals(ID))
+        if (key.equalsIgnoreCase(ID))
             return getColumnName(key) + COLUMN_TYPE_LONG + COLUMN_PRIMARY_KEY;
 
-        else if (entry.getValue().getClass() == Integer.class)
-            return getColumnName(key) + COLUMN_TYPE_INT;
-
-        else if (entry.getValue().getClass() == Double.class)
-            return getColumnName(key) + COLUMN_TYPE_DOUBLE;
-
-        else if (entry.getValue().getClass() == Boolean.class)
-            return getColumnName(key) + COLUMN_TYPE_BOOLEAN;
-
-        else
-            return getColumnName(key) + COLUMN_TYPE_STRING;
+        Type type = Type.getInstance(entry.getValue().getClass());
+        String columnName = getColumnName(key);
+        return switch (type) {
+            case LONG -> columnName + COLUMN_TYPE_LONG;
+            case INTEGER -> columnName + COLUMN_TYPE_INTEGER;
+            case DOUBLE -> columnName + COLUMN_TYPE_DOUBLE;
+            case BOOLEAN -> columnName + COLUMN_TYPE_BOOLEAN;
+            case STRING, UNDEFINED -> columnName + COLUMN_TYPE_STRING;
+        };
     }
 }
