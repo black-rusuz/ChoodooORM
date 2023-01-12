@@ -3,7 +3,7 @@ package team.choodoo.orm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import team.choodoo.orm.api.DataProviderJdbc;
+import team.choodoo.orm.api.DataProvider;
 import team.choodoo.orm.api.IDataProvider;
 import team.choodoo.orm.model.DateBean;
 import team.choodoo.orm.model.TestBean;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class MainTest extends TestData {
     private final Logger log = LogManager.getLogger(this.getClass());
-    IDataProvider dp = new DataProviderJdbc(t1, d1);
+    IDataProvider dp = new DataProvider(t1, d1);
 
     @Test
     void testDate() {

@@ -17,7 +17,7 @@ public class DdlUtil {
         STRING,
         UNDEFINED;
 
-        public static <T> Type getInstance(Class<T> type) {
+        private static <T> Type getInstance(Class<T> type) {
             try {
                 return Type.valueOf(type.getSimpleName().toUpperCase());
             } catch (Exception e) {
@@ -49,11 +49,12 @@ public class DdlUtil {
 
     private static String mapper(Map.Entry<String, Object> entry) {
         String key = entry.getKey();
+        String columnName = getColumnName(key);
+
         if (key.equalsIgnoreCase(ID))
-            return getColumnName(key) + COLUMN_TYPE_LONG + COLUMN_PRIMARY_KEY;
+            return columnName + COLUMN_TYPE_LONG + COLUMN_PRIMARY_KEY;
 
         Type type = Type.getInstance(entry.getValue().getClass());
-        String columnName = getColumnName(key);
         return switch (type) {
             case LONG -> columnName + COLUMN_TYPE_LONG;
             case INTEGER -> columnName + COLUMN_TYPE_INTEGER;
