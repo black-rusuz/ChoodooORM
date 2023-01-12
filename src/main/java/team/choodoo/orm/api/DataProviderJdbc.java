@@ -54,13 +54,16 @@ public class DataProviderJdbc implements IDataProvider {
         return ReflectUtil.getId(bean);
     }
 
+    // TODO: check
     @Override
     public <T> boolean delete(Class<T> type, long id) {
         if (!hasSavedId(type, id)) {
             log.warn(getNotFoundMessage(type, id));
             return false;
         }
-        return dbHelper.write(Action.DELETE, ReflectUtil.getEmptyObject(type));
+        T bean = ReflectUtil.getEmptyObject(type);
+        ReflectUtil.setId(bean, id);
+        return dbHelper.write(Action.DELETE, bean);
     }
 
     @Override
