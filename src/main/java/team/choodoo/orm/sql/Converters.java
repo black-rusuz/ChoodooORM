@@ -25,13 +25,13 @@ public class Converters {
     private static String innerMapToString(LinkedHashMap<String, Object> map) {
         return map.values().stream()
                 .map(Object::toString)
-                .collect(Collectors.joining(Constants.FIELDS_DELIMITER));
+                .collect(Collectors.joining(FIELDS_DELIMITER));
     }
 
     private static String innerListToString(ArrayList<LinkedHashMap<String, Object>> list) {
         return list.stream()
                 .map(Converters::innerMapToString)
-                .collect(Collectors.joining(Constants.BEANS_DELIMITER));
+                .collect(Collectors.joining(BEANS_DELIMITER));
     }
 
     private static String toValues(Object value) {

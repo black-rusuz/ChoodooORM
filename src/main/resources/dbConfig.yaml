@@ -1,5 +1,14 @@
 app_name: ChoodooORM
+
 database:
   hostname: jdbc:h2:tcp://localhost/~/test
   username: sa
   password:
+
+configuration:
+  table_prefix: "T_"
+  column_prefix: "C_"
+  id_field: "id"
+  beans_delimiter: "--"
+  fields_delimiter: "::"
+
