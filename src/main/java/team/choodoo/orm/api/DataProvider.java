@@ -45,22 +45,22 @@ public class DataProvider implements IDataProvider {
     }
 
     @Override
-    public <T> T insert(Class<T> type, T bean) {
-        ReflectUtil.setId(bean, getNewId(type));
+    public <T> T insert(T bean) {
+        ReflectUtil.setId(bean, getNewId(bean.getClass()));
         dbHelper.write(Action.INSERT, bean);
         return bean;
     }
 
     @Override
-    public <T> boolean delete(Class<T> type, T bean) {
-        boolean result = dbHelper.write(Action.DELETE, bean) != 0;
+    public <T> T update(T bean) {
+        boolean result = dbHelper.write(Action.UPDATE, bean) != 0;
         if (!result) log.warn(getNotFoundMessage(bean));
-        return result;
+        return result ? bean : null;
     }
 
     @Override
-    public <T> boolean update(Class<T> type, T bean) {
-        boolean result = dbHelper.write(Action.UPDATE, bean) != 0;
+    public <T> boolean delete(T bean) {
+        boolean result = dbHelper.write(Action.DELETE, bean) != 0;
         if (!result) log.warn(getNotFoundMessage(bean));
         return result;
     }

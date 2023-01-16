@@ -2,38 +2,77 @@ package team.choodoo.orm;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import team.choodoo.orm.api.DataProvider;
 import team.choodoo.orm.api.IDataProvider;
-import team.choodoo.orm.model.DateBean;
 import team.choodoo.orm.model.TestBean;
 import team.choodoo.orm.model.TestData;
+import team.choodoo.orm.utils.Constants;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 public class MainTest extends TestData {
     private final Logger log = LogManager.getLogger(this.getClass());
     IDataProvider dp = DataProvider.createTables(t1, d1);
 
-    @Test
-    void testDate() {
-        dp.insert(DateBean.class, d1);
-        dp.insert(DateBean.class, d2);
-        log.info(dp.getAll(DateBean.class));
+    @AfterEach
+    void cleanUp() {
+        dp.getAll(TestBean.class).forEach(e -> dp.delete(e));
     }
 
     @Test
-    void test() {
-        dp.insert(TestBean.class, t1);
-        dp.insert(TestBean.class, t2);
-        dp.insert(TestBean.class, t3);
+    void getAllPos() {
+        t.forEach(e -> dp.insert(e));
+        Assertions.assertEquals(t, dp.getAll(TestBean.class));
+    }
 
-        dp.delete(TestBean.class, t1);
+    @Test
+    void getAllNeg() {
+        Assertions.assertEquals(List.of(), dp.getAll(TestBean.class));
+    }
 
-        log.info(dp.getById(TestBean.class, t1.getId()));
-        log.info(dp.getById(TestBean.class, t2.getId()));
-        log.info(dp.getById(TestBean.class, t3.getId()));
+    @Test
+    void getByIdPos() {
+        dp.insert(t1);
+        Assertions.assertEquals(t1, dp.getById(TestBean.class, t1.getId()));
+    }
 
-        log.info(dp.getAll(TestBean.class).stream().map(Object::toString).collect(Collectors.joining("\n")));
+    @Test
+    void getByIdNeg() {
+        Assertions.assertNull(dp.getById(TestBean.class, t1.getId()));
+    }
+
+    @Test
+    void insertPos() {
+        Assertions.assertEquals(t1, dp.insert(t1));
+    }
+
+    @Test
+    void insertNeg() {
+        Assertions.assertNotEquals(t2, dp.insert(t1));
+    }
+
+    @Test
+    void updatePos() {
+        dp.insert(t1).setName(Constants.APP_NAME);
+        Assertions.assertEquals(t1, dp.update(t1));
+    }
+
+    @Test
+    void updateNeg() {
+        Assertions.assertNull(dp.update(t1));
+    }
+
+    @Test
+    void deletePos() {
+        dp.insert(t1);
+        Assertions.assertTrue(dp.delete(t1));
+    }
+
+    @Test
+    void deleteNeg() {
+        Assertions.assertFalse(dp.delete(t1));
     }
 }

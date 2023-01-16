@@ -8,9 +8,9 @@ public interface IDataProvider {
 
     <T> T getById(Class<T> type, long id);
 
-    <T> T insert(Class<T> type, T bean);
+    <T> T insert(T bean);
 
-    <T> boolean delete(Class<T> type, T bean);
+    <T> T update(T bean);
 
-    <T> boolean update(Class<T> type, T bean);
+    <T> boolean delete(T bean);
 }
