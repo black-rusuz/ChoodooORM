@@ -10,11 +10,15 @@ import team.choodoo.orm.utils.ReflectUtil;
 import java.util.List;
 
 public class DataProvider implements IDataProvider {
+    private static final DatabaseHelper dbHelper = new DatabaseHelper();
     private final Logger log = LogManager.getLogger(this.getClass());
-    private final DatabaseHelper dbHelper = new DatabaseHelper();
 
-    public DataProvider(Object... beans) {
+    public DataProvider() {
+    }
+
+    public static DataProvider createTables(Object... beans) {
         dbHelper.createTables(beans);
+        return new DataProvider();
     }
 
     // * ID

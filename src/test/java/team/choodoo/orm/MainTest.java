@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class MainTest extends TestData {
     private final Logger log = LogManager.getLogger(this.getClass());
-    IDataProvider dp = new DataProvider(t1, d1);
+    IDataProvider dp = DataProvider.createTables(t1, d1);
 
     @Test
     void testDate() {
