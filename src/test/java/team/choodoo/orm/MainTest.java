@@ -28,6 +28,8 @@ public class MainTest extends TestData {
         dp.insert(TestBean.class, t2);
         dp.insert(TestBean.class, t3);
 
+        dp.delete(TestBean.class, t1);
+
         log.info(dp.getById(TestBean.class, t1.getId()));
         log.info(dp.getById(TestBean.class, t2.getId()));
         log.info(dp.getById(TestBean.class, t3.getId()));

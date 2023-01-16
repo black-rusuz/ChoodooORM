@@ -97,18 +97,20 @@ public class DatabaseHelper {
 
     // * WRITE
 
-    private void write(String sql) throws SQLException {
+    private int write(String sql) throws SQLException {
+        int resultCode;
         Connection connection = DriverManager.getConnection(hostname, username, password);
         Statement statement = connection.createStatement();
 
         log.debug(sql);
-        statement.executeUpdate(sql);
+        resultCode = statement.executeUpdate(sql);
 
         connection.close();
         statement.close();
+        return resultCode;
     }
 
-    public <T> boolean write(Action action, T bean) {
+    public <T> int write(Action action, T bean) {
         long id = ReflectUtil.getId(bean);
         String sql = switch (action) {
             case INSERT -> DmlUtil.insertIntoTableValues(bean);
@@ -117,11 +119,10 @@ public class DatabaseHelper {
         };
 
         try {
-            write(sql);
-            return true;
+            return write(sql);
         } catch (SQLException e) {
             log.error(e.getMessage());
-            return false;
+            return 0;
         }
     }
 }

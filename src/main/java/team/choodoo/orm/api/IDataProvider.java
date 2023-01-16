@@ -10,7 +10,7 @@ public interface IDataProvider {
 
     <T> T insert(Class<T> type, T bean);
 
-    <T> boolean delete(Class<T> type, long id);
+    <T> boolean delete(Class<T> type, T bean);
 
     <T> boolean update(Class<T> type, T bean);
 }

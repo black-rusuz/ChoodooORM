@@ -23,13 +23,8 @@ public class DataProvider implements IDataProvider {
 
     // * ID
 
-    private <T> boolean hasSavedId(Class<T> type, long id) {
-        T oldBean = getById(type, id);
-        return oldBean != null;
-    }
-
-    private <T> String getNotFoundMessage(Class<T> type, long id) {
-        return String.format(Messages.NOT_FOUND, type.getSimpleName(), id);
+    private <T> String getNotFoundMessage(T bean) {
+        return String.format(Messages.NOT_FOUND, bean.toString());
     }
 
     private <T> long getNewId(Class<T> type) {
@@ -51,33 +46,22 @@ public class DataProvider implements IDataProvider {
 
     @Override
     public <T> T insert(Class<T> type, T bean) {
-        long id = ReflectUtil.getId(bean);
-        if (hasSavedId(type, id)) {
-            long newId = getNewId(type);
-            ReflectUtil.setId(bean, newId);
-        }
+        ReflectUtil.setId(bean, getNewId(type));
         dbHelper.write(Action.INSERT, bean);
         return bean;
     }
 
     @Override
-    public <T> boolean delete(Class<T> type, long id) {
-        if (!hasSavedId(type, id)) {
-            log.warn(getNotFoundMessage(type, id));
-            return false;
-        }
-        T bean = ReflectUtil.getEmptyObject(type);
-        ReflectUtil.setId(bean, id);
-        return dbHelper.write(Action.DELETE, bean);
+    public <T> boolean delete(Class<T> type, T bean) {
+        boolean result = dbHelper.write(Action.DELETE, bean) != 0;
+        if (!result) log.warn(getNotFoundMessage(bean));
+        return result;
     }
 
     @Override
     public <T> boolean update(Class<T> type, T bean) {
-        long id = ReflectUtil.getId(bean);
-        if (!hasSavedId(type, id)) {
-            log.warn(getNotFoundMessage(type, id));
-            return false;
-        }
-        return dbHelper.write(Action.UPDATE, bean);
+        boolean result = dbHelper.write(Action.UPDATE, bean) != 0;
+        if (!result) log.warn(getNotFoundMessage(bean));
+        return result;
     }
 }
