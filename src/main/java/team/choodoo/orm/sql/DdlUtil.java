@@ -8,24 +8,6 @@ import static team.choodoo.orm.sql.CommonSql.*;
 import static team.choodoo.orm.sql.Converters.getMap;
 
 public class DdlUtil {
-
-    enum Type {
-        LONG,
-        INTEGER,
-        DOUBLE,
-        BOOLEAN,
-        STRING,
-        UNDEFINED;
-
-        private static <T> Type getInstance(Class<T> type) {
-            try {
-                return Type.valueOf(type.getSimpleName().toUpperCase());
-            } catch (Exception e) {
-                return Type.UNDEFINED;
-            }
-        }
-    }
-
     private static final String SQL_CREATE_TABLE_IF_NOT_EXISTS = "CREATE TABLE IF NOT EXISTS %s (%s);";
 
     private static final String COLUMN_PRIMARY_KEY = " PRIMARY KEY";
@@ -35,6 +17,9 @@ public class DdlUtil {
     private static final String COLUMN_TYPE_BOOLEAN = " BIT";
     private static final String COLUMN_TYPE_STRING = " VARCHAR";
 
+    /**
+     * Generate SQL command for creating table
+     */
     public static <T> String createTable(T bean) {
         String tableName = getTableName(bean.getClass());
         String columns = mapToColumns(getMap(bean));
@@ -51,16 +36,54 @@ public class DdlUtil {
         String key = entry.getKey();
         String columnName = getColumnName(key);
 
-        if (key.equalsIgnoreCase(ID))
-            return columnName + COLUMN_TYPE_LONG + COLUMN_PRIMARY_KEY;
+        if (key.equalsIgnoreCase(ID)) return columnName + COLUMN_TYPE_LONG + COLUMN_PRIMARY_KEY;
+        return columnName + Type.getInstance(entry.getValue().getClass()).toSql();
+    }
 
-        Type type = Type.getInstance(entry.getValue().getClass());
-        return switch (type) {
-            case LONG -> columnName + COLUMN_TYPE_LONG;
-            case INTEGER -> columnName + COLUMN_TYPE_INTEGER;
-            case DOUBLE -> columnName + COLUMN_TYPE_DOUBLE;
-            case BOOLEAN -> columnName + COLUMN_TYPE_BOOLEAN;
-            case STRING, UNDEFINED -> columnName + COLUMN_TYPE_STRING;
+    /**
+     * Supported Java DataTypes for SQL mapper
+     */
+    public enum Type {
+        LONG {
+            @Override
+            String toSql() {
+                return COLUMN_TYPE_LONG;
+            }
+        }, INTEGER {
+            @Override
+            String toSql() {
+                return COLUMN_TYPE_INTEGER;
+            }
+        }, DOUBLE {
+            @Override
+            String toSql() {
+                return COLUMN_TYPE_DOUBLE;
+            }
+        }, BOOLEAN {
+            @Override
+            String toSql() {
+                return COLUMN_TYPE_BOOLEAN;
+            }
+        }, STRING {
+            @Override
+            String toSql() {
+                return COLUMN_TYPE_STRING;
+            }
+        }, UNDEFINED {
+            @Override
+            String toSql() {
+                return COLUMN_TYPE_STRING;
+            }
         };
+
+        private static <T> Type getInstance(Class<T> type) {
+            try {
+                return Type.valueOf(type.getSimpleName().toUpperCase());
+            } catch (Exception e) {
+                return Type.UNDEFINED;
+            }
+        }
+
+        abstract String toSql();
     }
 }
